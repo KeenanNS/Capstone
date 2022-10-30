@@ -1,6 +1,7 @@
 import random as rand
 import numpy as np
 import matplotlib.pyplot as plot
+from input_format import SingleDataPoint, PointValue
 
 class DataGenerator:
 	def __init__(self, mapWidth, mapHeight, mapCenterPoint, mapResolution, averageN = 5, averageP = 0.6, averageK = 2, averageC = 50, averageHumidity = 25):
@@ -22,6 +23,7 @@ class DataGenerator:
 		self.KPoints = []
 		self.CPoints = []
 		self.HumidityPoints = []
+		self.Values = {}
 
 	def CalculateBottomLeft(self):
 		x = self.MapCenterPointDeg[0] - (self.MapWidthDeg / 2)
@@ -36,19 +38,34 @@ class DataGenerator:
 	def GetNoiseyValue(self, N):
 		if(self.NoiseyValueEveryOther):
 			self.NoiseyValueEveryOther = False
-			return (N * rand.random()) + N
+			return (N + rand.random())
 		else:
 			self.NoiseyValueEveryOther = True
-			return (N * rand.random() - N)
+			return (N - rand.random())
 
 	def GenerateValues(self, N):
 		self.Count = N
 		for i in range(N):
 			self.NPoints.append([self.GetNoiseyValue(self.N), self.GenRandomCoordinate()])
+			SP = SingleDataPoint(self.GenRandomCoordinate(), self.GetNoiseyValue(self.N))
+			if not 'N' in self.Values: self.Values['N'] = []
+			self.Values['N'].append(SP)
 			self.PPoints.append([self.GetNoiseyValue(self.P), self.GenRandomCoordinate()])
+			SP = SingleDataPoint(self.GenRandomCoordinate(), self.GetNoiseyValue(self.P))
+			if not 'P' in self.Values: self.Values['P'] = []
+			self.Values['P'].append(SP)
 			self.KPoints.append([self.GetNoiseyValue(self.K), self.GenRandomCoordinate()])
+			SP = SingleDataPoint(self.GenRandomCoordinate(), self.GetNoiseyValue(self.K))
+			if not 'K' in self.Values: self.Values['K'] = []
+			self.Values['K'].append(SP)
 			self.CPoints.append([self.GetNoiseyValue(self.C), self.GenRandomCoordinate()])
+			SP = SingleDataPoint(self.GenRandomCoordinate(), self.GetNoiseyValue(self.C))
+			if not 'C' in self.Values: self.Values['C'] = []
+			self.Values['C'].append(SP)
 			self.HumidityPoints.append([self.GetNoiseyValue(self.Humidity), self.GenRandomCoordinate()])
+			SP = SingleDataPoint(self.GenRandomCoordinate(), self.GetNoiseyValue(self.Humidity))
+			if not 'Humidity' in self.Values: self.Values['Humidity'] = []
+			self.Values['Humidity'].append(SP)
 
 	def ShowPlot(self):
 		for i in range(self.Count):
@@ -60,6 +77,6 @@ class DataGenerator:
 		plot.show()
 
 
-generator = DataGenerator(15, 10, [45.9210874, 45.29384751], 100)
-generator.GenerateValues(20)
-generator.ShowPlot()
+# generator = DataGenerator(15, 10, [45.9210874, 45.29384751], 100)
+# generator.GenerateValues(20)
+# generator.ShowPlot()

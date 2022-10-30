@@ -3,9 +3,9 @@ class Input:
 		self.Inputs = dataPoints
 
 class SingleDataPoint:
-	def __init__(self, coordinates, pointValue):
+	def __init__(self, coordinates, Value):
 		self.Coordinates = coordinates
-		self.PointValue = pointValue
+		self.Value = Value
 
 class PointValue:
 	def __init__(self, valueType, value):
