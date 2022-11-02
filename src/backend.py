@@ -1,8 +1,40 @@
 import math 
-from Input import SingleDataPoint, PointValue
+from input_format import SingleDataPoint
+import numpy as np 
+from scipy import interpolate
+import matplotlib.pyplot as plt
 
 #static class just for namesake
 class Backend:
+	def __init__(self):
+		pass
+	def RasterizeFromFakeData(self, CompletedDataGenerator, DesiredGranularity):
+		widthSteps = CompletedDataGenerator.MapWidthDeg // DesiredGranularity
+		heightSteps = CompletedDataGenerator.MapHeightDeg // DesiredGranularity
+
+		print([value.Value for value in CompletedDataGenerator.Values['N']])
+		function_approximation = self.cheater_interpolation(CompletedDataGenerator.Values['N'])
+
+		# This is an important part of the picture
+
+		rasterizedN = self.cheater_interpolation(CompletedDataGenerator.Values['N'])
+		rasterizedP = self.cheater_interpolation(CompletedDataGenerator.Values['P'])
+		rasterizedK = self.cheater_interpolation(CompletedDataGenerator.Values['K'])
+		rasterizedC = self.cheater_interpolation(CompletedDataGenerator.Values['C'])
+		rasterizedHumidity = self.cheater_interpolation(CompletedDataGenerator.Values['Humidity'])
+
+		return rasterizedN
+
+	def cheater_interpolation(self, points):
+		x = [point.Coordinates[0] for point in points]
+		y = [point.Coordinates[1] for point in points]
+		z = [point.Value for point in points]
+		xx = np.linspace(np.min(x), np.max(x))
+		yy = np.linspace(np.min(y), np.max(y))
+		xx, yy = np.meshgrid(xx, yy)
+		
+		vals = interpolate.griddata((x, y), z, (xx.ravel(), yy.ravel()))
+		return vals
 
 	def Rasterize(MapWidth, MapHeight, BottomLeft, KnownValues, DesiredGranularity):
 		widthSteps = MapWidth / DesiredGranularity
@@ -40,7 +72,7 @@ class Backend:
 		return pointList
 
 	# Interpolation kernel
-	def StepWiseFunction(s, a):
+	def StepWiseFunction(self, x, a):
 	    
 	    if (abs(x) >= 0) and (abs(x) <= 1):
 	        return (a+2)*(math.pow(abs(x),3))-(a+3)*(math.pow(abs(x),2))+1
@@ -49,10 +81,10 @@ class Backend:
 	        return a*(math.pow(abs(x), 3))-(5*a)*(math.pow(abs(x),2))+(8*a)*abs(x)-4*a
 	    return 0
 
-	def InterpolateOnePoint(TargetCoordinates, KnownDataPoints, coef):
-		matrixA = np.matrix([StepWiseFunction(knownPoint.coordinates[0], coef) for knownPoint in KnownDataPoints])
-		matrixB = np.matrix([knownPoint.PointValue.Value for knownPoint in KnownDataPoints])
-		matrixC = np.matrix([StepWiseFunction(knownPoint.coordinates[1], coef) for knownPoint in KnownDataPoints])
+	def InterpolateOnePoint(self, TargetCoordinates, KnownDataPoints, coef):
+		matrixA = np.matrix([self.StepWiseFunction(knownPoint.Coordinates[0], coef) for knownPoint in KnownDataPoints])
+		matrixB = np.matrix([knownPoint.Value for knownPoint in KnownDataPoints])
+		matrixC = np.matrix([self.StepWiseFunction(knownPoint.Coordinates[1], coef) for knownPoint in KnownDataPoints])
 		targetValue = np.dot(np.dot(matrixA, matrixB), matrixC)
 		return SingleDataPoint(TargetCoordinates, targetValue)
 
