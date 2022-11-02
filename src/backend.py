@@ -1,7 +1,8 @@
 import math 
-from input_format import SingleDataPoint, PointValue
+from input_format import SingleDataPoint
 import numpy as np 
 from scipy import interpolate
+import matplotlib.pyplot as plt
 
 #static class just for namesake
 class Backend:
@@ -10,25 +11,30 @@ class Backend:
 	def RasterizeFromFakeData(self, CompletedDataGenerator, DesiredGranularity):
 		widthSteps = CompletedDataGenerator.MapWidthDeg // DesiredGranularity
 		heightSteps = CompletedDataGenerator.MapHeightDeg // DesiredGranularity
+
+		print([value.Value for value in CompletedDataGenerator.Values['N']])
 		function_approximation = self.cheater_interpolation(CompletedDataGenerator.Values['N'])
-		points = []
-		for x in range(widthSteps):
-			for y in range(heightSteps):
-				X = CompletedDataGenerator.BottomLeftCoord[0] + x * DesiredGranularity
-				Y = CompletedDataGenerator.BottomLeftCoord[1] + y * DesiredGranularity
-				points.append(SingleDataPoint([X,Y],function_approximation(X,Y)))
 
-				# for (key, val) in CompletedDataGenerator.Values:
+		# This is an important part of the picture
 
-				#points.append(self.InterpolateOnePoint([X, Y], CompletedDataGenerator.Values['N'], -1/2))
+		rasterizedN = self.cheater_interpolation(CompletedDataGenerator.Values['N'])
+		rasterizedP = self.cheater_interpolation(CompletedDataGenerator.Values['P'])
+		rasterizedK = self.cheater_interpolation(CompletedDataGenerator.Values['K'])
+		rasterizedC = self.cheater_interpolation(CompletedDataGenerator.Values['C'])
+		rasterizedHumidity = self.cheater_interpolation(CompletedDataGenerator.Values['Humidity'])
 
-		return points
+		return rasterizedN
 
 	def cheater_interpolation(self, points):
-		xs = [point.Coordinates[0] for point in points]
-		ys = [point.Coordinates[1] for point in points]
-		zs = [point.Value for point in points]
-		return interpolate.interp2d(xs, ys, zs)
+		x = [point.Coordinates[0] for point in points]
+		y = [point.Coordinates[1] for point in points]
+		z = [point.Value for point in points]
+		xx = np.linspace(np.min(x), np.max(x))
+		yy = np.linspace(np.min(y), np.max(y))
+		xx, yy = np.meshgrid(xx, yy)
+		
+		vals = interpolate.griddata((x, y), z, (xx.ravel(), yy.ravel()))
+		return vals
 
 	def Rasterize(MapWidth, MapHeight, BottomLeft, KnownValues, DesiredGranularity):
 		widthSteps = MapWidth / DesiredGranularity

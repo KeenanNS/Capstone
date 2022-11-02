@@ -1,7 +1,7 @@
 import random as rand
 import numpy as np
 import matplotlib.pyplot as plot
-from input_format import SingleDataPoint, PointValue
+from input_format import SingleDataPoint
 
 class DataGenerator:
 	def __init__(self, mapWidth, mapHeight, mapCenterPoint, mapResolution, averageN = 5, averageP = 0.6, averageK = 2, averageC = 50, averageHumidity = 25):
@@ -38,10 +38,10 @@ class DataGenerator:
 	def GetNoiseyValue(self, N):
 		if(self.NoiseyValueEveryOther):
 			self.NoiseyValueEveryOther = False
-			return (N + rand.random())
+			return (N + rand.random() * 0.5)
 		else:
 			self.NoiseyValueEveryOther = True
-			return (N - rand.random())
+			return (N - rand.random() * 0.5)
 
 	def GenerateValues(self, N):
 		self.Count = N
