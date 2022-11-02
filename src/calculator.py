@@ -1,9 +1,10 @@
 from input_format import CompleteInput, MultiplePointsSingleMetric, SingleDataPoint
 from objects import Biochar, Soil
+import random
 
 class Calculator:
-	def __init__(self, completeInput, soilInput, biocharInput):
-		self.CompleteInput = completeInput
+	def __init__(self, biocharInput):
+		self.BiocharQualities = biocharInput
 
 
 ################ water ################
@@ -52,3 +53,7 @@ class Calculator:
 ############ end Carbon ##########################
 
 ############ph etc###########
+	def Prescribe(self, soilValues):
+		self.SoilSample = soilValues
+		
+		return random.randint(0,20)

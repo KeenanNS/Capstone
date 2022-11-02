@@ -3,6 +3,8 @@ from input_format import SingleDataPoint
 import numpy as np 
 from scipy import interpolate
 import matplotlib.pyplot as plt
+from calculator import Calculator
+from objects import Biochar, Soil
 
 #static class just for namesake
 class Backend:
@@ -12,16 +14,29 @@ class Backend:
 		widthSteps = CompletedDataGenerator.MapWidthDeg // DesiredGranularity
 		heightSteps = CompletedDataGenerator.MapHeightDeg // DesiredGranularity
 
-		print([value.Value for value in CompletedDataGenerator.Values['N']])
-		function_approximation = self.cheater_interpolation(CompletedDataGenerator.Values['N'])
-
 		# This is an important part of the picture
+		calculatedPrescription = []
+
+		C = Calculator(Biochar())
 
 		rasterizedN = self.cheater_interpolation(CompletedDataGenerator.Values['N'])
 		rasterizedP = self.cheater_interpolation(CompletedDataGenerator.Values['P'])
 		rasterizedK = self.cheater_interpolation(CompletedDataGenerator.Values['K'])
 		rasterizedC = self.cheater_interpolation(CompletedDataGenerator.Values['C'])
 		rasterizedHumidity = self.cheater_interpolation(CompletedDataGenerator.Values['Humidity'])
+
+		for i in range(len(rasterizedN)):
+			n = rasterizedN[i]
+			p = rasterizedP[i]
+			k = rasterizedK[i]
+			c = rasterizedC[i]
+			humidity = rasterizedHumidity[i]
+
+			calculatedPrescription.append(C.Prescribe(Soil()))
+
+		return calculatedPrescription
+
+
 
 		return rasterizedN
 
