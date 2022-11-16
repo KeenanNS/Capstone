@@ -4,7 +4,7 @@ import numpy as np
 from scipy import interpolate
 import matplotlib.pyplot as plt
 from calculator import Calculator
-from objects import Biochar, Soil
+from objects import Biochar, Soil, DesiredSoil
 
 #static class just for namesake
 class Backend:
@@ -31,14 +31,12 @@ class Backend:
 			k = rasterizedK[i]
 			c = rasterizedC[i]
 			humidity = rasterizedHumidity[i]
+			# these values will be passed to Prescribe
+			calculatedPrescription.append(C.Prescribe(Soil(), DesiredSoil()))
 
-			calculatedPrescription.append(C.Prescribe(Soil()))
+			
 
 		return calculatedPrescription
-
-
-
-		return rasterizedN
 
 	def cheater_interpolation(self, points):
 		x = [point.Coordinates[0] for point in points]
