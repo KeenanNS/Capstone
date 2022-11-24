@@ -7,6 +7,12 @@ class Calculator:
 	def __init__(self, biocharInput):
 		self.BiocharQualities = biocharInput
 
+	def CalculateApplicationByDepthAndPercent(self, percentage):
+		return self.SoilSample.BulkDensity * self.SoilSample.Depth * 100 * 100 * percentage / 100
+
+	def CalculateApplicatonPercentByAmmount(self, amount):
+		return amount / self.SoilSample.BulkDensity / self.SoilSample.Depth / 100 / 100 * 100
+
 	def EffectiveNPK(self):
 		total = self.SoilSample.N + self.SoilSample.P + self.SoilSample.K
 
@@ -67,49 +73,42 @@ class Calculator:
 		delta = self.CalculateRequiredRationalIncrease(self.CalculatePhosphorusDiscrepency(), self.SoilSample.P)
 		return self.GetbiocharApplicationForDesiredPhosphorusIncrease(delta)
 
-################ water ################
-#This section is about calculating the amount of biochar that a user would want if they only cared about water
-#water discrepency is a trait of the soil, and unrelated to the biochar, however the potential for water retention
-# is only relevant in the context of the soil.. ie, the second function aims to output how many grams per m^2 should be applied
-# in order to achieve the ideal water retention of the soil
+############################################## NITROGEN #########################################
 
-    #Calculate how much more water retention the soil needs 
-	def CaculateWaterDiscrepency(self):
-		return 0
+	def GetbiocharApplicationForDesiredNitrogenIncrease(self, desired_increase):
+		# the relationship between nitrogen and biochar is stepwise
 
-    #Calculate the capacity of the biochar to improve the soil's water rentention per g / unit area
-	def CalculateBiocharPotentialForWaterRetention(self):
-		return 1
+		if desired_increase < 40: 
+			return 0.5
+		else:
+			return 40
 
-########## end water ################
+	def CalculateNitrogenDiscrepency(self):
+		delta = self.TargetSoil.N - self.SoilSample.N
 
-############## NPK #################
-# This section is about calculating the amount of biochar the user would want to apply in order to fulfill their
-# optimum NPK content values. This is an aggregate so it will make a judgement based on a stepwise function of sorts so 
-# that NPK are all represented and none of them fall above or below a given threshhold if possible
-	
-	#Calculate the aggregate discrepency for the NPK
-	def CalculateNPKDiscrepency(self):
-		return 0
+		if delta < 0: return 0
 
-	#Calculate g / m^2 to achieve perfect* NPK. *perfect as per discrepency
-	def CalculateBiocharPotentialForNPKremediation(self):
-		return 1
+		return delta
 
-############ end NPK ##########################
+	def PrescribeBiocharBasedOnNitrogen(self):
+		delta = self.CalculateRequiredRationalIncrease(self.CalculateNitrogenDiscrepency(), self.SoilSample.N)
+		return self.GetbiocharApplicationForDesiredNitrogenIncrease(delta)
 
-############## Carbon #################
-# This section is about calculating the amount of biochar the user would want to apply in order to fulfill their
-# optimum Carbon content value.
-	
-	#Calculate the aggregate discrepency for the Carbon
-	def CalculateCarbonDiscrepency(self):
-		return 0
+######################################## BULK DENSITY ##############################################
 
-	#Calculate g / m^2 to achieve perfect Carbon
-	def CalculateBiocharPotentialForCarbonremediation(self):
-		return 1
+	def BDAmountByDeltaFull(self, delta):
+		return self.BDApplicationAmountByDelta(delta - 0.328) / (-0.2367)
+	return -5.6 * percent + 2.5
 
+	def BDApplicationAmountByDelta(self, delta):
+
+		return self.CalculateApplicationByDepthAndPercent((delta - 2.5) / (-5.6))
+
+	def BDCalculateDelta(self):
+		return self.TargetSoil.BulkDensity - self.SoilSample.BulkDensity
+
+	def PrescribeBiocharForBD(self):
+		return self.BDAmountByDeltaFull(self.BDCalculateDelta())
 ############ end Carbon ##########################
 
 ############ph etc###########
@@ -117,4 +116,8 @@ class Calculator:
 		self.SoilSample = soilValues
 		self.TargetSoil = desiredSoilValues
 		
-		return self.PrescribeBiocharBasedOnPhosphorus()
+		P_prescription = self.PrescribeBiocharBasedOnPhosphorus()
+		N_prescription = self.PrescribeBiocharBasedOnNitrogen()
+		BD_prescription = self.PrescribeBiocharForBD()
+
+		return 0 * P_prescription + 0 * N_prescription + 1 * BD_prescription

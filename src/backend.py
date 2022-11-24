@@ -32,7 +32,7 @@ class Backend:
 			c = rasterizedC[i]
 			humidity = rasterizedHumidity[i]
 			# these values will be passed to Prescribe
-			calculatedPrescription.append(C.Prescribe(Soil(), DesiredSoil()))
+			calculatedPrescription.append(C.Prescribe(Soil(P = p, N = n), DesiredSoil()))
 
 			
 
