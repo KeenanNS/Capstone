@@ -8,10 +8,10 @@ class Calculator:
 		self.BiocharQualities = biocharInput
 
 	def CalculateApplicationByDepthAndPercent(self, percentage):
-		return self.SoilSample.BulkDensity * self.SoilSample.Depth * 100 * 100 * percentage / 100
+		return (self.SoilSample.BulkDensity / 1000) * self.SoilSample.Depth * 100 * 100 * (percentage / 100)
 
 	def CalculateApplicatonPercentByAmmount(self, amount):
-		return amount / self.SoilSample.BulkDensity / self.SoilSample.Depth / 100 / 100 * 100
+		return (amount * 1000 * 100) / self.SoilSample.BulkDensity / self.SoilSample.Depth / 100 / 100 
 
 	def EffectiveNPK(self):
 		total = self.SoilSample.N + self.SoilSample.P + self.SoilSample.K
@@ -96,28 +96,42 @@ class Calculator:
 
 ######################################## BULK DENSITY ##############################################
 
-	def BDAmountByDeltaFull(self, delta):
-		return self.BDApplicationAmountByDelta(delta - 0.328) / (-0.2367)
-	return -5.6 * percent + 2.5
+# relationship seems to be bulk density of the biochar applied at n percent will decrease 
+
+	# def DeltaWithBiocharBDFactorIn(self, amount):
+	# 	return -0.2367 * self.DeltaByApplicationAmount(amount) + 0.328
+
+	def BDFactor(self):
+		return (self.BiocharQualities.BulkDensity * 0.2367)
+
+	# def DeltaByApplicationAmount(self, amount):
+	# 	percent = self.CalculateApplicatonPercentByAmmount(amount)
+	# 	return -5.6 * percent + 2.5
 
 	def BDApplicationAmountByDelta(self, delta):
-
-		return self.CalculateApplicationByDepthAndPercent((delta - 2.5) / (-5.6))
+		m = self.CalculateApplicatonPercentByAmmount(delta)
+		res = self.CalculateApplicationByDepthAndPercent(m / (-5.1))
+		return res
 
 	def BDCalculateDelta(self):
 		return self.TargetSoil.BulkDensity - self.SoilSample.BulkDensity
 
 	def PrescribeBiocharForBD(self):
-		return self.BDAmountByDeltaFull(self.BDCalculateDelta())
+		res = self.BDApplicationAmountByDelta(self.BDCalculateDelta())
+		return res
+		if res > 0: 
+			return res
+		else: 
+			return 0
 ############ end Carbon ##########################
 
 ############ph etc###########
 	def Prescribe(self, soilValues, desiredSoilValues):
 		self.SoilSample = soilValues
 		self.TargetSoil = desiredSoilValues
-		
+
 		P_prescription = self.PrescribeBiocharBasedOnPhosphorus()
 		N_prescription = self.PrescribeBiocharBasedOnNitrogen()
 		BD_prescription = self.PrescribeBiocharForBD()
-
-		return 0 * P_prescription + 0 * N_prescription + 1 * BD_prescription
+		print(BD_prescription)
+		return 0.5 * P_prescription + 0 * N_prescription + 0.5 * BD_prescription

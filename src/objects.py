@@ -1,5 +1,5 @@
 class Biochar:
-	def __init__(self, pH = 1, volatiles_percent = 1 , ash_percent = 1, bulk_density = 0.065, specific_surface_area = 1, pore_volume = 1):
+	def __init__(self, pH = 1, volatiles_percent = 1 , ash_percent = 1, bulk_density = 0.6, specific_surface_area = 1, pore_volume = 1):
 		self.pH = pH 
 		self.volatiles_percent = volatiles_percent
 		self.ash_percent = ash_percent
