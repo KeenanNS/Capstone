@@ -6,44 +6,68 @@ import matplotlib.pyplot as plt
 from calculator import Calculator
 from objects import Biochar, Soil, DesiredSoil
 import matplotlib.pyplot as plt
+import pandas as pd
 
 #static class just for namesake
 class Backend:
-	def __init__(self, CompletedDataGenerator):
-		self.CompletedDataGenerator = CompletedDataGenerator
-		min_x = self.CompletedDataGenerator.BottomLeftCoord[0] 
-		max_x = min_x + self.CompletedDataGenerator.MapWidthDeg 
-		min_y = self.CompletedDataGenerator.BottomLeftCoord[1] 
-		max_y = min_y + self.CompletedDataGenerator.MapHeightDeg
+	def __init__(self, dataframe):
+		# self.CompletedDataGenerator = CompletedDataGenerator
+		# min_x = self.CompletedDataGenerator.BottomLeftCoord[0] 
+		# max_x = min_x + self.CompletedDataGenerator.MapWidthDeg 
+		# min_y = self.CompletedDataGenerator.BottomLeftCoord[1] 
+		# max_y = min_y + self.CompletedDataGenerator.MapHeightDeg
+		self.dataframe = dataframe
+		min_x = min(dataframe['x_coord'])
+		min_y = min(dataframe['y_coord'])
+		max_x = max(dataframe['x_coord'])
+		max_y = max(dataframe['y_coord'])
+
 		xx = np.linspace(min_x, max_x)
 		yy = np.linspace(min_y, max_y)
-		self.CompletedDataGenerator.xx, self.CompletedDataGenerator.yy = np.meshgrid(xx, yy)
+		self.xx, self.yy = np.meshgrid(xx, yy)
 
 	def RasterizeFromFakeData(self):
 		# This is an important part of the picture
-		calculatedPrescription = []
+		self.CalculatedPrescription = pd.DataFrame(columns = ['x_coord', 'y_coord', 'prescription in kg/m^2'])
+		values = []
 
 		C = Calculator(Biochar())
 
-		rasterizedN = self.cheater_interpolation(self.CompletedDataGenerator.Values['N'])
-		rasterizedP = self.cheater_interpolation(self.CompletedDataGenerator.Values['P'])
-		rasterizedK = self.cheater_interpolation(self.CompletedDataGenerator.Values['K'])
-		rasterizedC = self.cheater_interpolation(self.CompletedDataGenerator.Values['C'])
-		rasterizedBulkDensity = self.cheater_interpolation(self.CompletedDataGenerator.Values['BulkDensity'])
+		rasterizedN = self.cheater_interpolation([self.dataframe['x_coord'], self.dataframe['y_coord'], self.dataframe['N']])
+		rasterizedP = self.cheater_interpolation([self.dataframe['x_coord'], self.dataframe['y_coord'], self.dataframe['P']])
+		rasterizedK = self.cheater_interpolation([self.dataframe['x_coord'], self.dataframe['y_coord'], self.dataframe['K']])
+		rasterizedBulkDensity = self.cheater_interpolation([self.dataframe['x_coord'], self.dataframe['y_coord'], self.dataframe['BulkDensity']])
 
 		for i in range(len(rasterizedN)):
 			n = rasterizedN[i]
 			p = rasterizedP[i]
 			k = rasterizedK[i]
-			c = rasterizedC[i]
 			BD = rasterizedBulkDensity[i]
 			# these values will be passed to Prescribe
-			calculatedPrescription.append(C.Prescribe(Soil(P = p, N = n, bulkDensity = BD), DesiredSoil()))
+			values.append(C.Prescribe(Soil(P = p, N = n, bulkDensity = BD), DesiredSoil()))
 
-			
+		XX, YY = self.xx.ravel(), self.yy.ravel()
+		print(XX)
+		print(len(XX), len(self.xx))
+		print(len(values))
+		for i in range(len(self.xx)):
+			for j in range(len(self.yy)):
+				value = values[(j * len(self.xx)) + i]
+				if value < 1000000 and value > -1000000:
+					self.CalculatedPrescription = self.CalculatedPrescription.append({'x_coord' : XX[i], 'y_coord' : YY[j], 'prescription in kg/m^2' : value}, ignore_index = True)
 
-		print(len(calculatedPrescription))
-		return calculatedPrescription
+	def WriteCsv(self, Path):
+		self.CalculatedPrescription.to_csv(Path)
+		# writer = csv.writer(f)
+
+		# XX, YY = self.xx.ravel(), generator.yy.ravel()
+
+		# for i in range(len(self.xx)):
+		# 	for j in range(len(YY)):
+		# 		point = points[ (j * len(generator.xx)) + i]
+		# 		if point < 1000000 and point > -1000000:
+		# 			writer.writerow([str(XX[0][i]), str(YY[0][j]), str(point)])
+		# f.close()
 
 	def DemonstrateInterpolation(self):
 		n = self.CompletedDataGenerator.Values['N']
@@ -63,11 +87,13 @@ class Backend:
 		plt.show()
 
 	def cheater_interpolation(self, points):
-		x = [point.Coordinates[0] for point in points]
-		y = [point.Coordinates[1] for point in points]
-		z = [point.Value for point in points]
-		vals = interpolate.griddata((x, y), z, (self.CompletedDataGenerator.xx.ravel(), self.CompletedDataGenerator.yy.ravel()))
-		print(vals.shape)
+		x = points[0]
+		y = points[1]
+		z = points[2]
+		# x = [point[0] for point in points]
+		# y = [point[1] for point in points]
+		# z = [point[2] for point in points]
+		vals = interpolate.griddata((x, y), z, (self.xx.ravel(), self.yy.ravel()), method = 'cubic')
 		return vals
 
 	def Rasterize(MapWidth, MapHeight, BottomLeft, KnownValues, DesiredGranularity):

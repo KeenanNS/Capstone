@@ -8,7 +8,7 @@ class Biochar:
 		self.pore_volume = pore_volume
 
 class Soil:
-	def __init__(self, N = 1, P = 5, K = 1, C = 1, Humidity = 1, pH = 1, bulkDensity = 1.5, depth = 30):
+	def __init__(self, N = 1, P = 5, K = 1, C = 1,  pH = 1, bulkDensity = 1.5, depth = 30):
 		self.pH = pH 
 		self.N = N 
 		self.P = P # mg / m^2
@@ -19,11 +19,8 @@ class Soil:
 		# self.particle_density
 		# self.pore_space
 
-
-
-
 class DesiredSoil:
-	def __init__(self, N = 1, P = 7, K = 1, C = 1, Humidity = 1, pH = 1, bulkDensity = 1.5, depth = 30):
+	def __init__(self, N = 1, P = 5, K = 1, C = 1, Humidity = 1, pH = 1, bulkDensity = 1.5, depth = 30):
 		self.pH = pH 
 		self.N = N 
 		self.P = P # mg / m^2
