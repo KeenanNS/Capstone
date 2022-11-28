@@ -25,6 +25,7 @@ class Backend:
 		xx = np.linspace(min_x, max_x)
 		yy = np.linspace(min_y, max_y)
 		self.xx, self.yy = np.meshgrid(xx, yy)
+		self.prescription_for_graph = []
 
 	def RasterizeFromFakeData(self):
 		# This is an important part of the picture
@@ -53,8 +54,15 @@ class Backend:
 		for i in range(len(self.xx)):
 			for j in range(len(self.yy)):
 				value = values[(j * len(self.xx)) + i]
+				self.prescription_for_graph.append(value)
 				if value < 1000000 and value > -1000000:
 					self.CalculatedPrescription = self.CalculatedPrescription.append({'x_coord' : XX[i], 'y_coord' : YY[j], 'prescription in kg/m^2' : value}, ignore_index = True)
+
+	def ShowHeatMap(self):
+		fig = plt.figure()
+		ax = fig.add_subplot(111)
+		ax.scatter(self.xx, self.yy, c = self.prescription_for_graph)
+		plt.show()
 
 	def WriteCsv(self, Path):
 		self.CalculatedPrescription.to_csv(Path)

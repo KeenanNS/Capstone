@@ -13,7 +13,8 @@ from backend import Backend
 
 input_data = pd.read_csv(sys.argv[1])
 B = Backend(input_data)
-points = B.RasterizeFromFakeData()
+B.RasterizeFromFakeData()
+B.ShowHeatMap()
 B.WriteCsv(sys.argv[2])
 
 # f = open(sys.argv[2], 'w')
@@ -30,8 +31,8 @@ B.WriteCsv(sys.argv[2])
 #f.close()
 # import matplotlib.pyplot as plt
 
-# fig = plt.figure()
-# ax = fig.add_subplot(111)
-# ax.scatter(generator.xx, generator.yy, c = points)
+# 
+# 
+# 
 
 # plt.show()
