@@ -1,21 +1,16 @@
-from generate_fake_data import DataGenerator
-from input_format import MultiplePointsSingleMetric
-import numpy as np
 import pandas as pd
 import seaborn as sns
 
 import csv
 import sys
-# generator = DataGenerator(15, 10, [45.9210874, 45.29384751], 100)
-# generator.GenerateValues(20)
-# generator.GenerateCSV()
+
 from backend import Backend 
 
 input_data = pd.read_csv(sys.argv[1])
 B = Backend(input_data)
 B.RasterizeFromFakeData()
 B.ShowHeatMap()
-B.WriteCsv(sys.argv[2])
+B.WriteCsv('../out/' + sys.argv[2])
 
 # f = open(sys.argv[2], 'w')
 # writer = csv.writer(f)

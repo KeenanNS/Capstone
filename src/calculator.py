@@ -133,4 +133,8 @@ class Calculator:
 		P_prescription = self.PrescribeBiocharBasedOnPhosphorus()
 		N_prescription = self.PrescribeBiocharBasedOnNitrogen()
 		BD_prescription = self.PrescribeBiocharForBD()
-		return 0.5 * P_prescription + 0 * N_prescription + 0.5 * BD_prescription
+		result = 0.5 * P_prescription + 0 * N_prescription + 0.5 * BD_prescription
+		if(result < 0): 
+			return 0
+		else:
+			return result

@@ -48,9 +48,6 @@ class Backend:
 			values.append(C.Prescribe(Soil(P = p, N = n, bulkDensity = BD), DesiredSoil()))
 
 		XX, YY = self.xx.ravel(), self.yy.ravel()
-		print(XX)
-		print(len(XX), len(self.xx))
-		print(len(values))
 		for i in range(len(self.xx)):
 			for j in range(len(self.yy)):
 				value = values[(j * len(self.xx)) + i]
@@ -66,16 +63,6 @@ class Backend:
 
 	def WriteCsv(self, Path):
 		self.CalculatedPrescription.to_csv(Path)
-		# writer = csv.writer(f)
-
-		# XX, YY = self.xx.ravel(), generator.yy.ravel()
-
-		# for i in range(len(self.xx)):
-		# 	for j in range(len(YY)):
-		# 		point = points[ (j * len(generator.xx)) + i]
-		# 		if point < 1000000 and point > -1000000:
-		# 			writer.writerow([str(XX[0][i]), str(YY[0][j]), str(point)])
-		# f.close()
 
 	def DemonstrateInterpolation(self):
 		n = self.CompletedDataGenerator.Values['N']

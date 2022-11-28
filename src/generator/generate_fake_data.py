@@ -1,7 +1,6 @@
 import random as rand
 import numpy as np
 import matplotlib.pyplot as plot
-from input_format import SingleDataPoint
 import pandas as pd
 
 class DataGenerator:
@@ -87,10 +86,9 @@ class DataGenerator:
 
 		self.Values = self.df
 
-	def GenerateCSV(self):
+	def GenerateCSV(self, path):
 		#df = pd.DataFrame.from_dict(self.Values)
-		self.df.to_csv('demo_input_data.csv')
-		exit()
+		self.df.to_csv(path)
 
 	def ShowPlot(self):
 		for i in range(self.Count):
@@ -101,7 +99,3 @@ class DataGenerator:
 			plot.scatter(self.BulkDensityPoints[i][1][0], self.BulkDensityPoints[i][1][1])
 		plot.show()
 
-
-# generator = DataGenerator(15, 10, [45.9210874, 45.29384751], 100)
-# generator.GenerateValues(20)
-# generator.ShowPlot()
